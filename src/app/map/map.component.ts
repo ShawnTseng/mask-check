@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { tileLayer, Map, LatLng } from 'leaflet';
+import { tileLayer, Map, LatLng, Marker, Popup } from 'leaflet';
 
 @Component({
   selector: 'app-map',
@@ -34,5 +34,11 @@ export class MapComponent {
     }));
     this.map.setZoom(17);
     this.map.panTo(new LatLng(latitude, longitude));
+
+    // 自己的位置
+    const selfMark = new Marker(new LatLng(latitude, longitude));
+    const selfPopup = new Popup({ closeButton: false }).setContent('<div style="text-align: center;">You</div>');
+    selfMark.addTo(this.map);
+    selfMark.bindPopup(selfPopup).openPopup();
   }
 }
