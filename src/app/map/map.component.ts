@@ -9,30 +9,28 @@ import * as L from 'leaflet';
 export class MapComponent implements AfterViewInit {
   private map;
 
-  constructor() { }
-
   ngAfterViewInit() {
     this.initLocation();
-    this.initMap();
   }
 
+  /** 取得使用者位置 */
   private initLocation() {
     const geoLocation: Geolocation = navigator.geolocation;
     if (geoLocation) {
-      geoLocation.getCurrentPosition(showPosition);
+      geoLocation.getCurrentPosition(this.showPosition.bind(this));
     } else {
       console.log('Geolocation is not supported.');
     }
-
-    function showPosition(position: Position) {
-      console.log(position);
-    }
   }
 
-  private initMap() {
+  private showPosition(position: Position) {
+    this.initMap(position.coords);
+  }
+
+  private initMap({ longitude, latitude }: Coordinates) {
     this.map = L.map('map', {
-      center: [39.8282, -98.5795],
-      zoom: 3
+      center: [latitude, longitude],
+      zoom: 17
     });
 
     const tiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
