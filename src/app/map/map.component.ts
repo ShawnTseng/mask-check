@@ -12,7 +12,21 @@ export class MapComponent implements AfterViewInit {
   constructor() { }
 
   ngAfterViewInit() {
+    this.initLocation();
     this.initMap();
+  }
+
+  private initLocation() {
+    const geoLocation: Geolocation = navigator.geolocation;
+    if (geoLocation) {
+      geoLocation.getCurrentPosition(showPosition);
+    } else {
+      console.log('Geolocation is not supported.');
+    }
+
+    function showPosition(position: Position) {
+      console.log(position);
+    }
   }
 
   private initMap() {
