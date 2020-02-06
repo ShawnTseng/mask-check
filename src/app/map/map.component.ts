@@ -1,43 +1,38 @@
-import { Component, AfterViewInit } from '@angular/core';
-import * as L from 'leaflet';
+import { Component } from '@angular/core';
+import { tileLayer, Map, LatLng } from 'leaflet';
 
 @Component({
   selector: 'app-map',
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.scss']
 })
-export class MapComponent implements AfterViewInit {
-  private map;
+export class MapComponent {
+  private map: Map;
 
-  ngAfterViewInit() {
-    this.initLocation();
+  onMapReady(map: Map) {
+    this.map = map;
+    this.getUserLocation();
   }
 
   /** 取得使用者位置 */
-  private initLocation() {
+  private getUserLocation() {
     const geoLocation: Geolocation = navigator.geolocation;
     if (geoLocation) {
-      geoLocation.getCurrentPosition(this.showPosition.bind(this));
+      geoLocation.getCurrentPosition(this.positionCallback.bind(this));
     } else {
       console.log('Geolocation is not supported.');
     }
   }
 
-  private showPosition(position: Position) {
+  private positionCallback(position: Position) {
     this.initMap(position.coords);
   }
 
-  private initMap({ longitude, latitude }: Coordinates) {
-    this.map = L.map('map', {
-      center: [latitude, longitude],
-      zoom: 17
-    });
-
-    const tiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-    });
-
-    tiles.addTo(this.map);
+  private initMap({ latitude, longitude }: Coordinates) {
+    this.map.addLayer(tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }));
+    this.map.setZoom(17);
+    this.map.panTo(new LatLng(latitude, longitude));
   }
 }
