@@ -24,6 +24,7 @@ export class MapComponent {
     this.loadPhamacyData();
   }
 
+  /** 初始化地圖 */
   private initMap(map: Map) {
     this.map = map;
     // 加入地圖資料
@@ -44,12 +45,13 @@ export class MapComponent {
 
   /** 定位使用者位置 */
   private initPanToUserPosition({ coords: { latitude, longitude } }: Position) {
-    const selfMark = new Marker(new LatLng(latitude, longitude));
-    const selfPopup = new Popup({ closeButton: false }).setContent('<div style="text-align: center;">You</div>');
-    selfMark.bindPopup(selfPopup).openPopup();
-    selfMark.addTo(this.map);
     this.map.setZoom(17);
     this.map.panTo(new LatLng(latitude, longitude));
+
+    const selfMark = new Marker(new LatLng(latitude, longitude));
+    const selfPopup = new Popup({ closeButton: false }).setContent('<div style="text-align: center;">You</div>');
+    selfMark.bindPopup(selfPopup);
+    selfMark.addTo(this.map);
   }
 
   /** 使用者定位失敗, 預設定位台灣 */
@@ -64,12 +66,39 @@ export class MapComponent {
       .subscribe((response: PhamacyPointResponse) => {
         this.markerCluster = [];
         response.features.forEach(phamacyPoint => {
-          const name = phamacyPoint.properties.name;
           const longitude = phamacyPoint.geometry.coordinates[0];
           const latitude = phamacyPoint.geometry.coordinates[1];
+          const name = phamacyPoint.properties.name;
+          const phone = phamacyPoint.properties.phone;
+          const address = phamacyPoint.properties.address;
+          const adultQuantity = phamacyPoint.properties.mask_adult;
+          const childQuantity = phamacyPoint.properties.mask_child;
+          const updateTime = phamacyPoint.properties.updated;
+          // const available = phamacyPoint.properties.available;
+          const note = phamacyPoint.properties.note;
+          const customNote = phamacyPoint.properties.custom_note;
+          const website = phamacyPoint.properties.website;
+
+          if (customNote || website) {
+            console.log(phamacyPoint);
+          }
 
           const marker = new Marker(new LatLng(latitude, longitude));
-          const popup = new Popup({ closeButton: false }).setContent(`<div style="text-align: center;">${name}</div>`);
+          let content = `
+          <div style="text-align: center;">${name}</div>
+          <div>電話: ${phone}</div>
+          <div>地址: ${address}</div>
+          <div>成人口罩: ${adultQuantity}</div>
+          <div>兒童口罩: ${childQuantity}</div>
+          <div>更新時間: ${updateTime}</div>
+          `;
+
+          content += note ? `<div>備註: ${note}</div>` : '';
+          content += customNote ? `<div>診所註記: ${customNote}</div>` : '';
+          content += website ? `<div>診所網站: ${website}</div>` : '';
+
+          const popup = new Popup({ closeButton: false })
+            .setContent(content);
           marker.bindPopup(popup);
           this.markerCluster.push(marker);
         });
