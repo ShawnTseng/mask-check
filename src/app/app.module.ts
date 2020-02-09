@@ -2,6 +2,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
 import { LeafletModule } from '@asymmetrik/ngx-leaflet';
+import { LeafletMarkerClusterModule } from '@asymmetrik/ngx-leaflet-markercluster';
 
 import { AppComponent } from './app.component';
 import { MapComponent } from './map/map.component';
@@ -13,7 +14,8 @@ import { MapComponent } from './map/map.component';
   ],
   imports: [
     BrowserModule,
-    LeafletModule.forRoot(),
+    LeafletModule,
+    LeafletMarkerClusterModule,
     HttpClientModule
 
   ],

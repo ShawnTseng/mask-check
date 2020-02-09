@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { tileLayer, Map, LatLng, Marker, Popup } from 'leaflet';
 import { PhamacyPointResponse } from './phamacy-point-response';
+import 'leaflet.markercluster';
 
 @Component({
   selector: 'app-map',
@@ -9,6 +10,8 @@ import { PhamacyPointResponse } from './phamacy-point-response';
   styleUrls: ['./map.component.scss']
 })
 export class MapComponent {
+  markerCluster: Array<Marker> = [];
+
   private map: Map;
 
   constructor(private http: HttpClient) { }
@@ -42,8 +45,8 @@ export class MapComponent {
     // 自己的位置
     const selfMark = new Marker(new LatLng(latitude, longitude));
     const selfPopup = new Popup({ closeButton: false }).setContent('<div style="text-align: center;">You</div>');
-    selfMark.addTo(this.map);
     selfMark.bindPopup(selfPopup).openPopup();
+    selfMark.addTo(this.map);
 
     this.loadPhamacyData();
   }
@@ -51,7 +54,17 @@ export class MapComponent {
   private loadPhamacyData() {
     this.http.get('https://raw.githubusercontent.com/kiang/pharmacies/master/json/points.json')
       .subscribe((response: PhamacyPointResponse) => {
-        console.log(response);
+        this.markerCluster = [];
+        response.features.forEach(phamacyPoint => {
+          const name = phamacyPoint.properties.name;
+          const longitude = phamacyPoint.geometry.coordinates[0];
+          const latitude = phamacyPoint.geometry.coordinates[1];
+
+          const marker = new Marker(new LatLng(latitude, longitude));
+          const popup = new Popup({ closeButton: false }).setContent(`<div style="text-align: center;">${name}</div>`);
+          marker.bindPopup(popup);
+          this.markerCluster.push(marker);
+        });
       });
   }
 }
