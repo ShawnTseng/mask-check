@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { tileLayer, Map, LatLng, Marker, Popup } from 'leaflet';
+import { PhamacyPointResponse } from './phamacy-point-response';
 
 @Component({
   selector: 'app-map',
@@ -8,6 +10,8 @@ import { tileLayer, Map, LatLng, Marker, Popup } from 'leaflet';
 })
 export class MapComponent {
   private map: Map;
+
+  constructor(private http: HttpClient) { }
 
   onMapReady(map: Map) {
     this.map = map;
@@ -40,5 +44,14 @@ export class MapComponent {
     const selfPopup = new Popup({ closeButton: false }).setContent('<div style="text-align: center;">You</div>');
     selfMark.addTo(this.map);
     selfMark.bindPopup(selfPopup).openPopup();
+
+    this.loadPhamacyData();
+  }
+
+  private loadPhamacyData() {
+    this.http.get('https://raw.githubusercontent.com/kiang/pharmacies/master/json/points.json')
+      .subscribe((response: PhamacyPointResponse) => {
+        console.log(response);
+      });
   }
 }
